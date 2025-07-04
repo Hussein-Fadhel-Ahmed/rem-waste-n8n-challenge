@@ -1,0 +1,990 @@
+{
+  "name": "My workflow 6",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "9d9cde55-1f92-4383-9e03-b066136b8b00",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        420
+      ],
+      "webhookId": "eba78928-5830-49e3-bad2-d639615c64ee"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2665fce9-dbf5-4499-8d92-de890bad32df",
+              "leftValue": "={{ $json.body.data.fields[0].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8ddd94ca-3b72-40c7-b97b-697280856e9a",
+              "leftValue": "={{ $json.body.data.fields[2].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c8a68e8b-c194-4625-88b7-0b1c468aee1e",
+              "leftValue": "={{ $json.body.data.fields[5].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c99805f3-3023-4542-8bf5-efddafaaa588",
+              "leftValue": "={{ $json.body.data.fields[1].label }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": false
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1300,
+        640
+      ],
+      "id": "4ccb556c-b517-4c80-8b40-cd82baa3946c",
+      "name": "Validation Check"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract full input JSON\nconst input = $input.first().json;\nconst fields = input.body?.data?.fields || [];\n\n// === Extract Fields Dynamically ===\nlet fullName = \"\";\nlet phone = \"\";\nlet email = \"\";\nlet companySize = \"\";\nlet interestId = \"\";\nlet budget = 0;\nlet interestOptions = [];\n\nfields.forEach(field => {\n  const label = field.label?.toLowerCase().trim();\n\n  if (label.includes(\"full name\")) {\n    fullName = field.value;\n  } else if (label.includes(\"phone\")) {\n    phone = field.value;\n  } else if (label.includes(\"e-mail\")) {\n    email = field.value;\n  } else if (label.includes(\"company\")) {\n    companySize = field.value;\n  } else if (label.includes(\"interest\")) {\n    interestId = field.value?.[0] || \"\";\n    interestOptions = field.options || [];\n  } else if (label.includes(\"budget\")) {\n    budget = parseFloat(field.value) || 0;\n  }\n});\n\n// === Map interest ID to readable label ===\nlet interestLevel = \"Unknown\";\nconst match = interestOptions.find(opt => opt.id === interestId);\nif (match) {\n  interestLevel = match.text.trim();\n}\n\n// === Scoring Logic ===\nlet score = \"Cold\";\n\nif (budget > 5000 && interestLevel === \"High\") {\n  score = \"Hot\";\n} else if (\n  (budget >= 1000 && budget <= 5000 && (interestLevel === \"High\" || interestLevel === \"Medium\")) ||\n  (budget > 5000 && interestLevel === \"Medium\")\n) {\n  score = \"Warm\";\n}\n\n// === Output Enriched Data ===\nreturn {\n  full_name: fullName,\n  email,\n  phone,\n  company_size: companySize,\n  interest_level: interestLevel,\n  budget,\n  score,\n  timestamp: new Date().toISOString()\n};\n"
+      },
+      "id": "1bce6ef4-8955-4dc8-b640-ebbc0ea53868",
+      "name": "Scoring Logic",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -920,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-HI1DydzqmIJVL6kUxY2hJI_WqaFjYLqatjpqGYGcBE",
+          "mode": "list",
+          "cachedResultName": "Lead Scoring Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-HI1DydzqmIJVL6kUxY2hJI_WqaFjYLqatjpqGYGcBE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "الورقة1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-HI1DydzqmIJVL6kUxY2hJI_WqaFjYLqatjpqGYGcBE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email": "={{ $json.email }}",
+            "phone": "={{ $json.phone }}",
+            "interest_level": "={{ $json.interest_level }}",
+            "score": "={{$json.score}}",
+            "timestamp": "={{$json.timestamp}}",
+            "full_name    ": "={{ $json.full_name }}",
+            "company_size  ": "={{ $json.company_size }}",
+            "budget  ": "={{ $json.budget }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "full_name    ",
+              "displayName": "full_name    ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_size  ",
+              "displayName": "company_size  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget  ",
+              "displayName": "budget  ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interest_level",
+              "displayName": "interest_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "العمود 1",
+              "displayName": "العمود 1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 2",
+              "displayName": "العمود 2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 3",
+              "displayName": "العمود 3",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 4",
+              "displayName": "العمود 4",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 5",
+              "displayName": "العمود 5",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 6",
+              "displayName": "العمود 6",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 7",
+              "displayName": "العمود 7",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 8",
+              "displayName": "العمود 8",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 9",
+              "displayName": "العمود 9",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 10",
+              "displayName": "العمود 10",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 11",
+              "displayName": "العمود 11",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 12",
+              "displayName": "العمود 12",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 13",
+              "displayName": "العمود 13",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 14",
+              "displayName": "العمود 14",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 15",
+              "displayName": "العمود 15",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 16",
+              "displayName": "العمود 16",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 17",
+              "displayName": "العمود 17",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "العمود 18",
+              "displayName": "العمود 18",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "useAppend": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -700,
+        400
+      ],
+      "id": "b02e822b-3f3e-4d76-b9fb-059e6f032a1b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wHNPzVAwGDkF9qzY",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "hot-lead-check",
+              "leftValue": "={{ $('Scoring Logic').item.json.score }}",
+              "rightValue": "Hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "77f7fd96-9284-4318-8f64-5c27045a839a",
+      "name": "Hot Lead Check",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09479H742G",
+          "mode": "list",
+          "cachedResultName": "all-hs-team"
+        },
+        "text": "=🔥 [REM Waste] New Hot Lead Alert! 🔥\n\nName: {{ $json.output.full_name }}\nBudget: £{{ $json.output.budget }}\nInterest Level: {{ $json.output.interest_level }}\nEmail: {{ $json.output.email }}\nPhone: {{ $json.output.phone }}\nCompany Size: {{ $json.output.company_size }}\n\n🚀 Gemini Pitch: {{ $json.output.recommendation_summary.headline }}\nWhy important? {{ $json.output.recommendation_summary.why_important }}\nPotential value: {{ $json.output.recommendation_summary.potential_value }}\nSuggested actions: {{ $json.output.recommendation_summary.suggested_actions }}\n\n\n📊 View full lead details in Google Sheets and follow up ASAP.",
+        "otherOptions": {}
+      },
+      "id": "0bf349b2-1b57-4ec5-a5be-33eae69dd3d6",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        60,
+        380
+      ],
+      "webhookId": "4249363c-1f09-4297-8feb-49c436fadd86",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "lwm26iIvVxB58vqx",
+          "name": "Slack account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09479H742G",
+          "mode": "list",
+          "cachedResultName": "all-hs-team"
+        },
+        "text": "=📞 [REM Waste] Follow-up Reminder: Contact {{ $json['full_name    '] }}- ({{ $json.email }}) – Hot Lead with £ {{ $json['budget  '] }} budget!\n💡 Suggested actions:\n• Propose a customized waste management solution\n• Schedule a sustainability consultation\n• Share similar success stories",
+        "otherOptions": {}
+      },
+      "id": "b924e97d-8bbf-4f62-8ab4-941c66ac3a20",
+      "name": "Follow-up Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        500,
+        380
+      ],
+      "webhookId": "250ad133-c15b-447b-becc-553d57649af8",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "lwm26iIvVxB58vqx",
+          "name": "Slack account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        260
+      ],
+      "id": "3dd78b67-81c9-4789-863d-a0c1a9944cdb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "PmE8UMZeHjMVJNwe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Lead processed successfully\",\n  \"score\": \"{{ $json.score }}\",\n  \"timestamp\": \"{{ $json.timestamp }}\"\n}",
+        "options": {}
+      },
+      "id": "8ba8d0f8-a304-48f8-8120-e27ce6616aa4",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        820,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"error\",\n  \"message\": \"Missing required fields: full_name, email, budget, interest_level\"\n}",
+        "options": {}
+      },
+      "id": "b19f651b-2568-4dc6-88de-03fe239fb63d",
+      "name": "Validation Error Response1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -700,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Welcome to REM Waste – Let’s Get Started!",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Welcome to REM Waste</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4; color: #333;\">\n  <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n    <tr>\n      <td align=\"center\" style=\"padding: 40px 10px;\">\n        <table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\" style=\"background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1);\">\n          <tr>\n            <td style=\"background-color: #2e7d32; padding: 20px 30px;\">\n              <h1 style=\"margin: 0; color: #ffffff; font-size: 24px;\">🌍 Welcome to REM Waste, {{ $json.full_name }} !</h1>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding: 30px;\">\n              <p style=\"font-size: 16px; line-height: 1.6;\">\n                Thank you for reaching out and expressing interest in <strong>REM Waste</strong>. We're excited to connect with forward-thinking businesses like yours that are focused on sustainability and cost-effective waste solutions.\n              </p>\n\n              <p style=\"font-size: 16px; line-height: 1.6;\">\n                Here’s what you can expect next:\n              </p>\n\n              <ul style=\"font-size: 16px; padding-left: 20px; line-height: 1.8;\">\n                <li>✅ One of our specialists will review your inquiry.</li>\n                <li>✅ You’ll receive personalized recommendations soon.</li>\n                <li>✅ Explore our <a href=\"https://www.remwaste.com/case-studies\" target=\"_blank\" style=\"color: #2e7d32; text-decoration: underline;\">case studies</a> to see how we’ve helped businesses like yours.</li>\n              </ul>\n\n              <p style=\"font-size: 16px; line-height: 1.6;\">\n                We're committed to helping you reduce waste, improve efficiency, and make a lasting environmental impact.\n              </p>\n\n              <p style=\"font-size: 16px; font-style: italic; color: #555;\">Let’s build a cleaner future together.</p>\n\n              <hr style=\"margin: 30px 0; border: none; border-top: 1px solid #ddd;\" />\n\n              <p style=\"font-size: 15px;\">\n                Warm regards,<br>\n                <strong>The REM Waste Team 🌱</strong><br>\n                <a href=\"https://www.remwaste.com\" style=\"color: #2e7d32;\">www.remwaste.com</a>\n              </p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"background-color: #f0f0f0; padding: 15px; text-align: center; font-size: 12px; color: #888;\">\n              © 2025 REM Waste. All rights reserved.\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>\n",
+        "options": {
+          "replyTo": "hussein.alali80163@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -700,
+        200
+      ],
+      "id": "91d78658-7eb5-4041-9768-148c476acea2",
+      "name": "Send welcome message",
+      "webhookId": "8ddb0c08-3166-4f03-bc71-67995fe852f6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ovdbVvZTGCCQfN87",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"Sustainable Waste Management Solutions for Hussein Fadhel's\",\n  \"recipient_name\": \"Hussein\",\n  \"body_paragraphs\": [\n    \"Hussein, reduce your company's environmental footprint and significantly lower waste management costs – simultaneously – with REM Waste's innovative solutions.\",\n    \"Our tailored strategies deliver measurable ROI through optimized waste streams and reduced disposal fees, freeing up valuable resources for your core business.\",\n    \"We recently helped a similar sized company (50 employees) like yours save 15% on their annual waste budget and divert over 60% of their waste from landfills through our comprehensive recycling and composting programs.\",\n    \"For a company of your size (50 employees) and with a budget of £9000, we can create a bespoke plan focusing on areas likely yielding the highest returns, such as improving recycling rates or introducing more efficient waste segregation methods.\",\n    \"This results in both financial savings and a demonstrably reduced carbon footprint, enhancing your company's sustainability profile.\"\n  ],\n  \"cta\": \"https://www.remwaste.com\",\n  \"phone\": \"07830117210\"\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -340,
+        260
+      ],
+      "id": "fcfb3cc2-6eec-4eca-b712-835981d98e63",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"full_name\": \"Hussein Alali\",\n  \"email\": \"hussein@example.com\",\n  \"phone\": \"07830117210\",\n  \"company_size\": \"50-100\",\n  \"budget\": 3000,\n  \"interest_level\": \"Medium\",\n  \"score\": \"Warm\",\n  \"recommendation_summary\": {\n    \"headline\": \"Promising lead with moderate interest and healthy budget\",\n    \"why_important\": \"This lead has a reasonable budget (£3000) and expressed medium interest, making it a candidate worth nurturing.\",\n    \"potential_value\": \"With the right guidance, we could help them optimize their waste strategy and deliver measurable ROI through sustainability.\",\n    \"suggested_actions\": [\n      \"Send a personalized case study relevant to similar businesses\",\n      \"Follow up with a mid-tier consultation offer\",\n      \"Monitor engagement and escalate if interest increases\"\n    ],\n    \"tone_guidance\": \"Maintain a warm, educational tone — offer value, not pressure.\"\n  }\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -380,
+        620
+      ],
+      "id": "b30c98d2-80f0-417b-afb1-378c0bf331b7",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior marketing strategist at REM Waste.\n\nAnalyze the following lead and generate a sharp internal summary for the marketing team. Your message should:\n- Start with a strong headline.\n- Highlight why this lead is important (size, budget, interest).\n- Explain the potential value we can provide (ROI, sustainability).\n- Include suggested actions for the sales/marketing team.\n- Include contact info.\n- Format in Markdown or plain text for Slack or Email (no HTML).\n\nLead Info:\n• Name: {{ $json['full_name    '] }}\n• Email: {{ $json.email }}\n• Phone: {{ $json.phone }}\n• Company Size: {{ $json['company_size  '] }}\n• Budget: £{{ $json['budget  '] }}\n• Interest Level: {{ $json.interest_level }}\n• Lead Score: {{ $json.score }}\n\nReturn only the message to be sent to the marketing team.\n",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        -500,
+        400
+      ],
+      "id": "085160ee-8171-415e-9600-9629638cbfaf",
+      "name": "Customer evaluation"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a senior marketing strategist working for REM Waste, a leading provider of sustainable waste management solutions.\nCraft a concise, persuasive pitch for a new lead using the following information:\n\n• Name: {{ $json.output.full_name }}\n• Email: {{ $json.output.email }}\n• Phone: {{ $json.output.phone }}\n• Company Size: {{ $json.output.company_size }}\n• Budget: £{{ $json.output.budget }}\n• Interest Level: {{ $json.output.interest_level }}\n• Lead Score: {{ $json.output.score }}  \n\nYour pitch must include:\n1. **Hook**: A one‑sentence opener tied to sustainability or cost-efficiency.\n2. **Value Proposition**: How REM Waste provides measurable ROI and eco-impact.\n3. **Social Proof**: Mention a recent successful project or case study.\n4. **Call to Action**: Invite to schedule a strategy call or waste audit.\n\nReturn the pitch in 2–3 concise paragraphs. If unable to generate, respond with: 'No pitch available.'",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        60,
+        120
+      ],
+      "id": "af7b68a4-9c55-4aac-9b4c-7089eac17b84",
+      "name": "Preparing the marketing message"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "id": "b5d9abf6-0bfd-478f-a955-432c8aff4288",
+      "name": "Delay 2 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        300,
+        380
+      ],
+      "webhookId": "51938f74-feb4-4f9c-9b63-712a9a73c349"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C094TFA4W6L",
+          "mode": "list",
+          "cachedResultName": "new-channel"
+        },
+        "text": "=🌡️ New Lead {{ $json.output.score }}\n\nName: {{ $json.output.full_name }}\nBudget: £{{ $json.output.budget }}\nInterest Level: {{ $json.output.interest_level }}\nEmail: {{ $json.output.email }}\n\n{{ $json.score === 'Cold' ? 'Keep an eye on this one, could warm up!' : 'This could be a great opportunity. Review and follow up!' }}",
+        "otherOptions": {}
+      },
+      "id": "a17057c7-a4d1-4caf-a9e2-fb8915caad7e",
+      "name": "Cold/Warm Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [
+        300,
+        680
+      ],
+      "webhookId": "4249363c-1f09-4297-8feb-49c436fadd86",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "lwm26iIvVxB58vqx",
+          "name": "Slack account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "73a4a726-c401-4ad2-a53c-d099b0ce0d43",
+              "leftValue": "={{ $json.body.email }}{{ $json.body.data.fields[2].value }}",
+              "rightValue": "/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1120,
+        420
+      ],
+      "id": "3bd3a14b-91bb-41ad-9254-ff69b3db0d09",
+      "name": "Email Check"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Customer evaluation').item.json.output.email }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>REM Waste</title>\n  <style>\n    body {\n      margin: 0;\n      padding: 0;\n      background-color: #f7f9fb;\n      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n      color: #333;\n    }\n    .container {\n      width: 100%;\n      padding: 40px 0;\n      display: flex;\n      justify-content: center;\n    }\n    .card {\n      background: #ffffff;\n      width: 600px;\n      border-radius: 10px;\n      box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);\n      overflow: hidden;\n    }\n    .header {\n      background-color: #2e7d32;\n      padding: 20px 30px;\n      color: #ffffff;\n    }\n    .header h1 {\n      margin: 0;\n      font-size: 22px;\n    }\n    .body {\n      padding: 30px;\n      font-size: 16px;\n      line-height: 1.6;\n    }\n    .cta {\n      margin-top: 30px;\n      text-align: center;\n    }\n    .cta a {\n      background-color: #2e7d32;\n      color: white;\n      text-decoration: none;\n      padding: 12px 20px;\n      border-radius: 5px;\n      font-weight: bold;\n      display: inline-block;\n    }\n    .footer {\n      background-color: #f0f0f0;\n      padding: 15px;\n      text-align: center;\n      font-size: 12px;\n      color: #888;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"card\">\n      <div class=\"header\">\n        <h1>Hi {{ $json.output.recipient_name }}, let's take your sustainability to the next level 🌍</h1>\n      </div>\n      <div class=\"body\">\n       {{ $json.output.body_paragraphs }}\n        <div class=\"cta\">\n          <a href=\"https://www.remwaste.com\" target=\"_blank\">\n            Schedule Your Free Strategy Call\n          </a>\n        </div>\n      </div>\n      <div class=\"footer\">\n        © 2025 REM Waste – All rights reserved.\n      </div>\n    </div>\n  </div>\n</body>\n</html>\n",
+        "options": {
+          "replyTo": "hussein.alali80163@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        500,
+        120
+      ],
+      "id": "094aaf30-f68c-4d3c-a853-25cb68318077",
+      "name": "Marketing message",
+      "webhookId": "8ddb0c08-3166-4f03-bc71-67995fe852f6",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ovdbVvZTGCCQfN87",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validation Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scoring Logic": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send welcome message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead Check": {
+      "main": [
+        [
+          {
+            "node": "Preparing the marketing message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cold/Warm Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Notification": {
+      "main": [
+        [
+          {
+            "node": "Delay 2 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-up Message": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Customer evaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Preparing the marketing message",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Customer evaluation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Check": {
+      "main": [
+        [
+          {
+            "node": "Email Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validation Error Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Preparing the marketing message",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Customer evaluation",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer evaluation": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparing the marketing message": {
+      "main": [
+        [
+          {
+            "node": "Marketing message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delay 2 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Follow-up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cold/Warm Notification": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Check": {
+      "main": [
+        [
+          {
+            "node": "Scoring Logic",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validation Error Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marketing message": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4e65a23-7123-41ae-8628-5bd834e05351",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e2c76eb557137f996552047555c702858b42076895d2c877ed815360eeff27ed"
+  },
+  "id": "PZh8YJ2gF6e81CWK",
+  "tags": [
+    {
+      "name": "Sales",
+      "id": "PTS7xKUrjNNXxYsY",
+      "createdAt": "2025-07-03T18:24:20.131Z",
+      "updatedAt": "2025-07-03T18:24:20.131Z"
+    },
+    {
+      "name": "Marketing",
+      "id": "ko3YyUCDI6eSkD4H",
+      "createdAt": "2025-07-03T18:24:20.067Z",
+      "updatedAt": "2025-07-03T18:24:20.067Z"
+    },
+    {
+      "name": "Leads",
+      "id": "br8oxTIUNcGhl11Q",
+      "createdAt": "2025-07-03T18:24:20.094Z",
+      "updatedAt": "2025-07-03T18:24:20.094Z"
+    },
+    {
+      "name": "Lead Processing",
+      "id": "9pB9irx2lYgkdH0F",
+      "createdAt": "2025-07-04T00:54:30.627Z",
+      "updatedAt": "2025-07-04T00:54:30.627Z"
+    },
+    {
+      "name": "Sales Automation",
+      "id": "oU6sQjmzvyzlfJsv",
+      "createdAt": "2025-07-04T00:54:30.602Z",
+      "updatedAt": "2025-07-04T00:54:30.602Z"
+    }
+  ]
+}
