@@ -99,6 +99,12 @@ The workflow consists of interconnected nodes covering intake, validation, scori
 
 * `Slack Node`: Delivers full lead info for HOT leads.
 * Includes Gemini-generated insights (summary, value, action items).
+* For **non-HOT leads (Warm or Cold)**, the message is sent to a **separate Slack channel** dedicated to general lead tracking and lower-priority nurturing. This segmentation helps the sales team focus attention where it matters most while still keeping track of all incoming opportunities.
+
+> 📸 *Slack Notification Example – HOT Lead:* ![Slack Notification](./assets/slack_hot_lead_message.png)
+> 📸 *Slack Notification Example – Warm/Cold Lead:* ![Slack Notification Alt](./assets/slack_warm_cold_lead_message.png)
+
+* Includes Gemini-generated insights (summary, value, action items).
 
 > 📸 *Slack Notification Example:* ![Slack Notification](./assets/slack_hot_lead_message.png)
 
@@ -117,12 +123,18 @@ The workflow consists of interconnected nodes covering intake, validation, scori
 
 ## 🤖 Gemini AI Integration
 
+> 📸 *Marketing Pitch Example:* ![Hot Lead Pitch Email](./assets/hot_lead_pitch_example.png)
+
 | Use Case                  | Output                                                                   |
 | ------------------------- | ------------------------------------------------------------------------ |
 | **1. Internal Summary**   | Sales-ready headline + analysis + call-to-actions for team               |
 | **2. Personalized Pitch** | Custom-tailored email pitch per lead based on size, interest, and budget |
 
 **Why this matters:**
+
+In addition to internal summaries, the workflow generates a dedicated marketing pitch tailored to each **HOT lead**. This pitch includes a concise, persuasive message that references the lead’s company size, declared interest, and allocated budget — all synthesized using Gemini AI. The output emphasizes REM Waste’s value proposition, showcases relevant success stories, and ends with a strong call to action (e.g., schedule a sustainability consultation or request a waste audit).
+
+Such personalization ensures every high-potential lead receives a message that is timely, insightful, and aligned with their business context — helping REM Waste convert interest into tangible engagement.
 
 * Converts form data into strategic actions.
 * Equips the sales team with intelligent context for each hot lead.
