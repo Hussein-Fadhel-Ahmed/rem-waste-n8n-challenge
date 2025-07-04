@@ -5,8 +5,12 @@
 This workflow qualifies incoming leads from a form, evaluates them using budget and interest level, stores the result in Google Sheets, and sends Slack alerts for high-value leads. Built fully with **free-tier tools**, the workflow simulates a real-time lead management pipeline and follows the assessment brief from REM Waste.
 
 > 🌐 **Webhook Endpoint**: [Submit via webhook](https://husseinfadhelahmed.app.n8n.cloud/webhook/lead-webhook) &#x20;
+> 
 > 🧾 **Form (Tally.so)**: [Lead Submission Form](https://tally.so/r/wdoMEo) &#x20;
+> 
 > 📊 **Google Sheet**: [View Submitted Leads](https://docs.google.com/spreadsheets/d/1-HI1DydzqmIJVL6kUxY2hJI_WqaFjYLqatjpqGYGcBE/edit?usp=sharing)
+
+
 
 > 📸 *Tally Form Preview:* ![Tally Form](./assets/tally_form_preview.png)
 > 📸 *Google Sheet Snapshot:* ![Google Sheet View](./assets/google_sheet_preview.png)
