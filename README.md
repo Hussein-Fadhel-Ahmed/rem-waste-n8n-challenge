@@ -14,7 +14,6 @@ This workflow qualifies incoming leads from a form, evaluates them using budget 
 ---
 
 ## 🧩 Use Case Overview
-![image](https://github.com/user-attachments/assets/104e7262-d5c1-4275-a9bd-a24d48258775)
 
 > 🖼️ *Use Case Diagram:* ![Use Case Diagram](./assets/use_case_diagram.png)
 
