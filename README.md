@@ -199,9 +199,7 @@ For manual validation and testing:
 
 ## 🔚 Closing Note
 
-This workflow was developed with sincere attention to the challenge scope, business practicality, and time constraint. I hope it reflects both my technical competence and appreciation for the opportunity to contribute to REM Waste.
+This workflow was developed with sincere attention to the scope challenge and business practicality. I hope it reflects both my technical competence and appreciation for the opportunity to contribute to REM Waste.
 
 Thank you for your kind consideration.
 
-> Assessment: [Submit via form](https://forms.gle/Qwp8JgZ7xqyzuCKLA) &#x20;
-> Contact: [hr@remwaste.com](mailto:hr@remwaste.com) | [www.remwaste.com](https://www.remwaste.com)
