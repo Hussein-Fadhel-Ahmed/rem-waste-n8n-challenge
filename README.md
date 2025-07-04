@@ -11,7 +11,6 @@ With utmost appreciation for the opportunity to take part in REM Waste's technic
 > 📊 **Google Sheet**: [View Submitted Leads](https://docs.google.com/spreadsheets/d/1-HI1DydzqmIJVL6kUxY2hJI_WqaFjYLqatjpqGYGcBE/edit?usp=sharing)
 
 > 📸 *Tally Form Preview:* ![Tally Form](./assets/tally_form_preview.png)
-> 📸 *Google Sheet Snapshot:* ![Google Sheet View](./assets/google_sheet_preview.png)
 
 ---
 
@@ -93,16 +92,13 @@ The workflow consists of interconnected nodes covering intake, validation, scori
 
 * `Google Sheets`: Appends all enriched lead data + timestamp.
 
-> 📸 *Google Sheet Entry Example:* ![Google Sheets Entry](./assets/google_sheet_entry.png)
+> 📸 *Google Sheet Entry Example:* ![Google Sheets Entry](./assets/google_sheet_preview.png)
 
 ### 🚨 Slack Notifications
 
 * `Slack Node`: Delivers full lead info for HOT leads.
 * Includes Gemini-generated insights (summary, value, action items).
 * For **non-HOT leads (Warm or Cold)**, the message is sent to a **separate Slack channel** dedicated to general lead tracking and lower-priority nurturing. This segmentation helps the sales team focus attention where it matters most while still keeping track of all incoming opportunities.
-
-> 📸 *Slack Notification Example – HOT Lead:* ![Slack Notification](./assets/slack_hot_lead_message.png)
-> 📸 *Slack Notification Example – Warm/Cold Lead:* ![Slack Notification Alt](./assets/slack_warm_cold_lead_message.png)
 
 * Includes Gemini-generated insights (summary, value, action items).
 
