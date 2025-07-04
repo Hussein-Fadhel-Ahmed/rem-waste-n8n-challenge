@@ -1,4 +1,5 @@
 # 🚀 REM Waste – Lead Scoring & Notification Bot (n8n Workflow)
+> ⚠️ This project was completed as part of a technical challenge for REM Waste. All content is based on a hypothetical scenario and uses mock/test data only.
 
 ## 📌 Overview
 
